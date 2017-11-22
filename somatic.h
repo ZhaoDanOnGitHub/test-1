@@ -64,6 +64,7 @@ public:
     double diff;
     double pValue;
     double FDR;
+    double weight;
     unsigned short rank;
     bool somatic;
     

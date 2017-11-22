@@ -109,7 +109,14 @@ double X2BetweenTwo(unsigned short * FirstOriginal, unsigned short * SecondOrigi
     // default dispots = 100
     // delare
     double *ExpFirst, *ExpSecond, *SumBoth;
-
+    
+    for(int i = 0; i < dispots; i++) {
+        if(FirstOriginal[i] < 3) {
+	      FirstOriginal[i] = 0;
+	}else if(SecondOriginal[i] <3 ) {
+	      SecondOriginal[i] = 0;
+	}
+    }
     ExpFirst  = new double [dispots + 1];
     ExpSecond = new double [dispots + 1];
     SumBoth   = new double [dispots + 1];
