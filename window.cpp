@@ -113,6 +113,14 @@ void Window::PouroutDisW(Sample &oneSample) {
     }
 };
 
+void Window::PourTumoroutDisW(Sample &oneSample) {
+    HomoSite *p = NULL;
+    for (unsigned short i=0; i<_siteCount; i++) {
+        p = _startSite + i;
+        p->PourTumoroutDis(oneSample);
+    }
+};
+
 void Window::DisGenotypingW(Sample &oneSample) {
     HomoSite *p = NULL;
     for (unsigned short i=0; i<_siteCount; i++) {

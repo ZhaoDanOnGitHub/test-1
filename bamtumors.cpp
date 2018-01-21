@@ -1,6 +1,5 @@
-
 /*
- * sample.h for MSIsensor
+ * bampair.cpp for MSIsensor 
  * Copyright (c) 2013 Beifang Niu && Kai Ye WUGSC All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person
@@ -25,57 +24,28 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _SAMPLE_H_
-#define _SAMPLE_H_
-
-#include <map>
-#include <vector>
-#include <string>
 #include <iostream>
-#include <fstream>
-#include <algorithm>
+#include <sstream>
+#include <bitset>
+#include <omp.h>
 
-#include "somatic.h"
+#include "Bamtumors.h"
 
-// sample
-class Sample {
-public:
-    Sample();
-    ~Sample();
+extern Param paramd;
 
-    std::string outputPrefix;
+BamTumors::BamTumors() 
+    : _start(0)
+    , _end(0)
+    , _chr("")
+    , _startSite(NULL)
+    , _endSite(NULL)
+{
+    //xxxx
 
-    std::ofstream output;
-    //std::ofstream outputPSomatic;
-    std::ofstream outputSomatic;
-    std::ofstream outputGermline;
-    std::ofstream outputDistribution;
-
-    unsigned numberOfSites;
-
-    unsigned precisionNumS;
-    unsigned precisionNumL; 
-
-    unsigned numberOfDataPoints; 
-    unsigned numberOfMsiDataPoints;
-    unsigned numberOftotalSites;
-
-    double weight_sum;
-    double weight_somatic;
-    // container for FDR
-    std::vector< SomaticSite > totalSomaticSites;
-
-    void iniOutput( const std::string &gavePrefix );
-    void iniTumorDisOutput( const std::string &gavePrefix );
-    void pourOutMsiScore();
-    void closeOutStream();
-    void calculateFDR();
-    void pourOutSomaticFDR();
-    void VerboseInfo();
-
-    protected:
-        // xxx
 };
 
-#endif //_SAMPLE_H_
+BamTumors::~BamTumors()
+{
+    //xxx
+};
 

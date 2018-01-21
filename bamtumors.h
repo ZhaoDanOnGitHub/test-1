@@ -1,6 +1,6 @@
 
 /*
- * window.h for MSIsensor
+ * bampair.h for MSIsensor
  * Copyright (c) 2013 Beifang Niu && Kai Ye WUGSC All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person
@@ -25,8 +25,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _WINDOW_H_
-#define _WINDOW_H_
+#ifndef _BAMTUMORS_H_
+#define _BAMTUMORS_H_
 
 #include <map>
 #include <vector>
@@ -36,43 +36,20 @@
 #include <algorithm>
 
 #include "param.h"
-#include "homo.h"
-#include "bamreader.h"
-#include "sample.h"
 
-// homopolymer site
-class Window {
+// Bam file tumors
+class BamTumors {
 public:
-    Window();
-    ~Window();
-
-    int _start;
-    int _end;
-    unsigned short _siteCount;
-    std::string _chr;
-    HomoSite *_startSite;
-    HomoSite *_endSite;
-
-    void InitialDisW(); 
-    void InitialTumorDisW();
-    void OutputDisW();
-    void OutputTumorDisW();
-    void ClearDis();
-    void ClearTumorDis();
-    void ChangeStart(); 
-    void GetDistribution(std::vector <SPLIT_READ> &readsInWindow);
-    void GetTumorDistribution(std::vector <SPLIT_READ> &readsInWindow);
-    void LoadReads(std::vector <SPLIT_READ> &readsInWindow, const std::string bam);
-    void ScanReads(const std::vector <SPLIT_READ> &readsInWindow, unsigned short bamIndex, bool isTumor);
-    void ReverseComplement(std::string &theWord);
-    unsigned short DoOneRead(const std::string &oneRead, const HomoSite *p);
-    void PouroutDisW(Sample &oneSample);
-    void PourTumoroutDisW(Sample &oneSample);
-    void DisGenotypingW(Sample &oneSample);
+    BamTumors();
+    ~BamTumors();
+    // total tumors
+    unsigned int totalTumors;
+    // bam files
+    std::string tumor_bam;
 
 protected:
-    //xxxxxx
+    //xxx
 };
 
-#endif //_WINDOW_H_
+#endif //_BAMTUMORS_H_
 

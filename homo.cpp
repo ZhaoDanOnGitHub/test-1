@@ -183,6 +183,24 @@ void HomoSite::PouroutDis(Sample &sample) {
     sample.outputDistribution << "\n";
 }
 
+// Pourout distribution
+void HomoSite::PourTumoroutDis(Sample &sample) {
+    sample.outputDistribution << chr << " "
+         << location << " "
+         << fbases << " "
+         << length << "["
+         << bases  << "] "
+         << ebases <<"\n";
+
+    for (unsigned int j=0; j<polyscan.totalBamTumorsNum; j++) {
+        sample.outputDistribution << "\nT: ";
+        for (unsigned int k=0; k<paramd.s_dispots; k++) {
+            sample.outputDistribution << tumorDis[j][k] << " ";
+        }
+    }
+    sample.outputDistribution << "\n";
+}
+
 // initial bools
 void HomoSite::BoolsInitial() {
     withSufCov = normalWithSufCov = somatic = withGenotype = false;

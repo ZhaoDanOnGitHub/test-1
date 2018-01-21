@@ -92,6 +92,7 @@ class PolyScan
         void outputDistributions();
         void releaseDistributions(); 
         void GetHomoDistribution( Sample &oneSample, const std::string &prefix );
+        void GetHomoTumorDistribution( Sample &oneSample, const std::string &prefix );
         
 protected:
 

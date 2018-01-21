@@ -80,6 +80,20 @@ void Sample::iniOutput( const std::string &gavePrefix ) {
     }
 }
 
+void Sample::iniTumorDisOutput( const std::string &gavePrefix ) { 
+    if ( !gavePrefix.empty()  ) { outputPrefix = gavePrefix; }
+    // init pour out result files
+    output.open( outputPrefix.c_str() );
+   // outputPSomatic.open( (outputPrefix + "_p_somatic").c_str() );
+    outputDistribution.open( (outputPrefix + "_dis").c_str() );
+
+    //if ( !output || !outputPSomatic || !outputSomatic || !outputGermline || !outputDistribution ) {
+    if ( !output || !outputDistribution ) {
+        std::cerr <<"failed to open output files to write !"<< std::endl; 
+        exit(1);
+    }
+}
+
 void Sample::pourOutMsiScore() {
     output << "Total_Number_of_Sites\tNumber_of_Somatic_Sites\t%\tWeight_of_Somaic_Sites" << std::endl;
     output << numberOfDataPoints << "\t" 

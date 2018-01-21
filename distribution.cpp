@@ -224,7 +224,7 @@ int MicrosateDisMsiOnly(int argc, char *argv[]) {
     std::cout << "\nTotal loading homopolymer and microsatellites:  " << polyscan.totalHomosites << " \n\n";
 
     // change code to one sample
-    polyscan.GetHomoDistribution(sample, disFile);
+    polyscan.GetHomoTumorDistribution(sample, disFile);
 
     std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
 

@@ -401,3 +401,23 @@ void PolyScan::GetHomoDistribution( Sample &oneSample, const std::string &prefix
 
 }
 
+void PolyScan::GetHomoTumorDistribution( Sample &oneSample, const std::string &prefix ) {
+    oneSample.iniTumorDisOutput(prefix);
+    std::vector< SPLIT_READ > readsInWindow;
+    for (int i=0; i< totalWindowsNum; i++) {
+        totalWindows[i].InitialTumorDisW();
+        totalWindows[i].GetTumorDistribution(readsInWindow);
+        totalWindows[i].PourTumoroutDisW(oneSample);
+        totalWindows[i].ClearTumorDis();
+        readsInWindow.clear();
+        std::cout << "window: " << i << " done...:" <<  totalWindows[i]._chr << ":" << totalWindows[i]._start << "-" << totalWindows[i]._end << std::endl;
+    }
+    // FDR
+    oneSample.calculateFDR();
+    oneSample.pourOutSomaticFDR();
+    // MSI score
+    oneSample.pourOutMsiScore();
+    oneSample.closeOutStream();
+    oneSample.VerboseInfo();
+
+}

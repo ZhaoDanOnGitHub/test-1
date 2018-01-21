@@ -97,6 +97,7 @@ public:
     void ReleaseTumorMemory();
     //void PouroutDis(std::ofstream &fout);
     void PouroutDis(Sample &sample);
+    void PourTumoroutDis(Sample &sample);
     void DisGenotyping(Sample &sample);
     //// genotyping ///
     void BoolsInitial();
