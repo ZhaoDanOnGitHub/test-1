@@ -65,9 +65,12 @@ class PolyScan
 
         // load bam list file 
         std::vector< BamPairs > totalBamPairs;
+	std::vector< BamTumors > totalBamTumors;
         //void LoadBams(std::ifstream &fin);
         void LoadBams(const std::string &nBam, const std::string &tBam);
+	void LoadBam(const std::string &tBam);
         unsigned int totalBamPairsNum;
+	unsigned int totalBamTumorsNum;
 
         // load homos and microsatellites
         unsigned long totalHomosites; 

@@ -90,8 +90,11 @@ public:
 
     void TransferString();
     void InitialDis();
+    void InitialTumorDis();
     void OutputDis();
+    void OutputTumorDis();
     void ReleaseMemory();
+    void ReleaseTumorMemory();
     //void PouroutDis(std::ofstream &fout);
     void PouroutDis(Sample &sample);
     void DisGenotyping(Sample &sample);

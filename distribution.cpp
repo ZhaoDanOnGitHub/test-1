@@ -178,3 +178,55 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
 }
 
 
+int MicrosateDisMsiOnly(int argc, char *argv[]) {
+    if (argc == 1) DisUsage();
+    for (int i=0; i<argc; i++) {
+        std::cout <<argv[i]<<' ';
+    }
+    Initial_Time();
+    std::cout <<"Start at:  "<<Curr_Time() << std::endl;
+
+    int noptions = dGetOptions(argc, argv);
+    // process user defined region
+    if (!one_region.empty()) {  
+        if (!polyscan.ParseOneRegion(one_region)) {
+            std::cerr<<"fatal error: Please give correct defined region format (-r) \n";
+            exit(1);
+        }
+        polyscan.ifUserDefinedRegion = true;
+    } else {
+        polyscan.ifUserDefinedRegion = false;
+    }
+    // reading bed file if is exist
+    finB.open(bedFile.c_str());
+    if (finB) {
+        std::cout << "loading bed regions ..." << std::endl;
+        polyscan.LoadBeds(finB);
+        polyscan.BedFilterorNot();
+    }
+
+    // load bam files
+    polyscan.LoadBam( tumorBam );
+
+    // check homo/microsate file
+    finH.open(homoFile.c_str());
+    if (!finH) {
+        std::cerr<<"fatal error: failed to open homopolymer and microsatellites file\n";
+        exit(1);
+    }
+    std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
+    polyscan.LoadHomosAndMicrosates(finH);
+    finH.close();
+    //polyscan.TestHomos();
+    polyscan.SplitWindows();
+    //polyscan.TestWindows();
+    std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum << " \n\n";
+    std::cout << "\nTotal loading homopolymer and microsatellites:  " << polyscan.totalHomosites << " \n\n";
+
+    // change code to one sample
+    polyscan.GetHomoDistribution(sample, disFile);
+
+    std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
+
+    return 0;
+}

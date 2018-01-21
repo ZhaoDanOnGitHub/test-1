@@ -63,6 +63,15 @@ void Window::InitialDisW() {
     }
 };
 
+
+void Window::InitialTumorDisW() {
+    HomoSite *p = NULL;
+    for (unsigned short i=0; i<_siteCount; i++) {
+        p = _startSite + i;
+        p->InitialTumorDis();
+    }
+};
+
 void Window::ClearDis() {
     HomoSite *p = NULL;
     for (unsigned short i=0; i<_siteCount; i++) {
@@ -71,11 +80,28 @@ void Window::ClearDis() {
     }
 };
 
+
+void Window::ClearTumorDis() {
+    HomoSite *p = NULL;
+    for (unsigned short i=0; i<_siteCount; i++) {
+        p = _startSite + i;
+        p->ReleaseTumorMemory();
+    }
+};
+
 void Window::OutputDisW() {
     HomoSite *p = NULL;
     for (unsigned short i=0; i<_siteCount; i++) {
         p = _startSite + i;
         p->OutputDis();
+    }
+};
+
+void Window::OutputTumorDisW() {
+    HomoSite *p = NULL;
+    for (unsigned short i=0; i<_siteCount; i++) {
+        p = _startSite + i;
+        p->OutputTumorDis();
     }
 };
 
@@ -121,6 +147,17 @@ void Window::GetDistribution(std::vector <SPLIT_READ> &readsInWindow) {
     }
 }
 
+void Window::GetTumorDistribution(std::vector <SPLIT_READ> &readsInWindow) {
+    for (unsigned short j=0; j<polyscan.totalBamTumorsNum; j++) {
+        // tumor
+        if (!polyscan.totalBamTumors[j].tumor_bam.empty()) {
+            // extract reads
+            LoadReads(readsInWindow, polyscan.totalBamTumors[j].tumor_bam.c_str());
+            ScanReads(readsInWindow, j, true);
+            readsInWindow.clear();
+        }
+    }
+}
 void Window::LoadReads( std::vector <SPLIT_READ> &readsInWindow, 
                         const std::string bam ) {
     std::string tag = "";

@@ -54,10 +54,14 @@ public:
     HomoSite *_endSite;
 
     void InitialDisW(); 
+    void InitialTumorDisW();
     void OutputDisW();
+    void OutputTumorDisW();
     void ClearDis();
+    void ClearTumorDis();
     void ChangeStart(); 
     void GetDistribution(std::vector <SPLIT_READ> &readsInWindow);
+    void GetTumorDistribution(std::vector <SPLIT_READ> &readsInWindow);
     void LoadReads(std::vector <SPLIT_READ> &readsInWindow, const std::string bam);
     void ScanReads(const std::vector <SPLIT_READ> &readsInWindow, unsigned short bamIndex, bool isTumor);
     void ReverseComplement(std::string &theWord);

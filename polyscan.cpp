@@ -161,6 +161,19 @@ void PolyScan::LoadBams(const std::string &bam1, const std::string &bam2) {
     totalBamPairsNum++;
 }
 
+
+void PolyScan::LoadBam(const std::string &bam) {
+    BamTumors t_bamtumor;
+    t_bamtumor.sName = "sample_name";
+
+    if (bam.find(".bam") != std::string::npos) { 
+        t_bamtumor.tumor_bam = bam;
+    } else { std::cerr << "please provide valid format normal bam file ! \n"; exit(0); }
+
+    // loading
+    totalBamTumors.push_back(t_bamtumor);
+    totalBamTumorsNum++;
+}
 // read and load sites
 void PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
     std::string chr;

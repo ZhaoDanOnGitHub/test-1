@@ -1,7 +1,7 @@
 CC=g++
 
-FLAGS=-O2 -fopenmp
-CFLAGS=-O2 -fopenmp
+FLAGS=-g -O2 -fopenmp
+CFLAGS=-g -O2 -fopenmp
 
 #FLAGS=-g -fopenmp
 #CFLAGS=-g -fopenmp
@@ -15,7 +15,7 @@ OBJS= $(patsubst %,%.o,$(SOURCE))
 all: check-samtools msisensor
 
 %.o:%.cpp
-	$(CC) $(FLAGS) -c $< -o $@
+	$(CC) $(FLAGS) -g -c $< -o $@
 
 check-samtools:
     ifndef SAMTOOLS_ROOT

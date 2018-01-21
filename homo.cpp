@@ -131,12 +131,30 @@ void HomoSite::InitialDis() {
     }
 }
 
+void HomoSite::InitialTumorDis() {
+    tumorDis  = new unsigned short *[polyscan.totalBamTumorsNum];
+    for (unsigned int j=0; j<polyscan.totalBamTumorsNum; j++) {
+        tumorDis[j]  = new unsigned short [paramd.s_dispots];
+        for (unsigned int k=0; k<paramd.s_dispots; k++) {
+            tumorDis[j][k]  = 0;
+        }
+    }
+}
 // Out distribution
 void HomoSite::OutputDis() {
     for (unsigned int j=0; j<polyscan.totalBamPairsNum; j++) {
         for (unsigned int k=0; k<paramd.s_dispots; k++) {
             std::cout<<normalDis[j][k];
         }
+        for (unsigned int k=0; k<paramd.s_dispots; k++) {
+            std::cout<<tumorDis[j][k];
+        }
+    }
+}
+
+
+void HomoSite::OutputTumorDis() {
+    for (unsigned int j=0; j<polyscan.totalBamTumorsNum; j++) {
         for (unsigned int k=0; k<paramd.s_dispots; k++) {
             std::cout<<tumorDis[j][k];
         }
@@ -380,3 +398,10 @@ void HomoSite::ReleaseMemory() {
     delete [] tumorDis;
 }
 
+
+void HomoSite::ReleaseTumorMemory() {
+    for (unsigned int k=0; k<polyscan.totalBamTumorsNum; k++) {
+        delete []  tumorDis[k]; 
+    }
+    delete [] tumorDis;
+}
