@@ -1,11 +1,11 @@
-MSIsensor
+MSIsensor1.1
 ===========
-MSIsensor is a C++ program for automatically detecting somatic and germline variants at microsatellite regions. It computes length distributions of microsatellites per site in paired tumor and normal sequence data, subsequently using these to statistically compare observed distributions in both samples. Comprehensive testing indicates MSIsensor is an efficient and effective tool for deriving MSI status from standard tumor-normal paired sequence data.
+MSIsensor1.1 is a C++ program for automatically detecting somatic and germline variants at microsatellite regions. It computes length distributions of microsatellites per site in paired tumor and normal sequence data, subsequently using these to statistically compare observed distributions in both samples. Comprehensive testing indicates MSIsensor1.1 is an efficient and effective tool for deriving MSI status from standard tumor-normal paired sequence data.
 
 Usage
 -----
 
-        Version 0.2
+        Version 1.0
         Usage:  msisensor <command> [options]
 
 Key commands:

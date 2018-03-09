@@ -1,6 +1,6 @@
 /*
- * bamreader.cpp for MSIsensor
- * Copyright (c) 2013 Beifang Niu && Kai Ye WUGSC All Rights Reserved.
+ * bamreader.cpp for MSIsensor1.1
+ * Copyright (c) 2013 Beifang Niu && Kai Ye CNIC && Xi’an Jiaotong University All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
