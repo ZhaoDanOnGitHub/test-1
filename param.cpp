@@ -1,7 +1,7 @@
 
 /*
- * param.cpp for MSIsensor
- * Copyright (c) 2013 Beifang Niu && Kai Ye WUGSC All Rights Reserved.
+ * param.cpp for MSIsensor1.1
+ * Copyright (c) 2013 Beifang Niu && Kai Ye CNIC && Xi’an Jiaotong University All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -60,7 +60,7 @@ void initrevalphabet() {
     for (int i=0; i<256; i++) {
         rev_alphabet[i] = 4;
     }
-    rev_alphabet['c'] = rev_alphabet['A'] = 3;
+    rev_alphabet['a'] = rev_alphabet['A'] = 3;
     rev_alphabet['c'] = rev_alphabet['C'] = 2;
     rev_alphabet['g'] = rev_alphabet['G'] = 1;
     rev_alphabet['t'] = rev_alphabet['T'] = 0;

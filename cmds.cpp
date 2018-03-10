@@ -1,6 +1,6 @@
 /*
- * cmds.cpp for MSIsensor
- * Copyright (c) 2013 Beifang Niu && Kai Ye WUGSC All Rights Reserved.
+ * cmds.cpp for MSIsensor1.1
+ * Copyright (c) 2013 Beifang Niu && Kai Ye CNIC && Xi’an Jiaotong University All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,7 +33,7 @@
 #include "cmds.h"
 
 #ifndef VERSION
-#define VERSION "v0.2"
+#define VERSION "v1.0"
 #endif
 
 int usage(void) {

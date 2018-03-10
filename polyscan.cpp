@@ -1,6 +1,6 @@
 /*
- * polyscan.cpp for MSIsensor 
- * Copyright (c) 2013 Beifang Niu && Kai Ye WUGSC All Rights Reserved.
+ * polyscan.cpp for MSIsensor1.1 
+ * Copyright (c) 2013 Beifang Niu && Kai Ye CNIC && Xi’an Jiaotong University All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
