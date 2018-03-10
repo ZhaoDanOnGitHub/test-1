@@ -28,7 +28,6 @@
 #include <sstream>
 #include <bitset>
 #include <omp.h>
-#include <cmath>
 
 #include "sample.h"
 #include "param.h"
@@ -48,8 +47,6 @@ Sample::Sample()
     , numberOfDataPoints( 0 )
     , numberOfMsiDataPoints( 0 )
     , numberOftotalSites( 0 )
-    , weight_somatic( 0 )
-    , weight_sum( 0 )
 {
     //xxxx
     output.precision( precisionNumS );
@@ -81,13 +78,11 @@ void Sample::iniOutput( const std::string &gavePrefix ) {
 }
 
 void Sample::pourOutMsiScore() {
-    output << "Total_Number_of_Sites\tNumber_of_Somatic_Sites\t%\tWeight_of_Somaic_Sites" << std::endl;
+    output << "Total_Number_of_Sites\tNumber_of_Somatic_Sites\t%" << std::endl;
     output << numberOfDataPoints << "\t" 
            << numberOfMsiDataPoints << "\t" 
            << std::fixed 
-           << (numberOfMsiDataPoints / (double)numberOfDataPoints) * 100.0 << "\t"
-	   << std::fixed
-	   << weight_somatic / weight_sum << std::endl;
+           << (numberOfMsiDataPoints / (double)numberOfDataPoints) * 100.0 << std::endl;
 }
 
 void Sample::closeOutStream() {
@@ -107,22 +102,14 @@ void Sample::calculateFDR() {
     for ( std::vector< SomaticSite >::iterator _it = totalSomaticSites.begin(); _it != totalSomaticSites.end(); ++_it ) {
         //_it->PourOut();
         _it->FDR = _it->pValue * numberOfDataPoints / rank ;
-	if ( _it->pValue == 1) {
-	     _it->weight = 0;
-	} else{
-	     _it->weight = 1+_it->pValue*log(_it->pValue)+(1-_it->pValue)*log(1-_it->pValue);
-	}
         if ( _it->FDR > paramd.fdrThreshold ) { 
             rank++; 
-	    weight_sum += _it->weight;
             continue; 
         } else {
             _it->rank = rank;
             _it->somatic = true;
             numberOfMsiDataPoints++;
             rank++;
-	    weight_somatic += _it->weight;
-	    weight_sum += _it->weight;
         }
     }
 }
@@ -140,8 +127,7 @@ void Sample::pourOutSomaticFDR() {
                       << _it->diff << "\t"
                       << _it->pValue << "\t"
                       << _it->FDR << "\t"
-                      << _it->rank << "\t"
-		      << _it->weight/weight_sum<< "\n";
+                      << _it->rank << "\n";
     }
 }
 

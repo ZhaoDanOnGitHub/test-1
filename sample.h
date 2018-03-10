@@ -60,8 +60,6 @@ public:
     unsigned numberOfMsiDataPoints;
     unsigned numberOftotalSites;
 
-    double weight_sum;
-    double weight_somatic;
     // container for FDR
     std::vector< SomaticSite > totalSomaticSites;
 
