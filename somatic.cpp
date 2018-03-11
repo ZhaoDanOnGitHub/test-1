@@ -42,7 +42,6 @@ SomaticSite::SomaticSite()
     , pValue( 1.0 )
     , somatic( false )
     , FDR( 1.0 )
-    , weight( 1.0 )
     , rank( 1 )
 {
     //xxxxxxxx

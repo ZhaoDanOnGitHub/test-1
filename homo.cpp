@@ -62,6 +62,7 @@ HomoSite::HomoSite()
     , normalWithSufCov( false )
     , dif( 0.0 )
     , pValue( 0.0 )
+    , comentropy( 0.0 )
     , somatic( false )
     , withGenotype( false )   
 {
@@ -193,7 +194,7 @@ void HomoSite::PourTumoroutDis(Sample &sample) {
          << ebases <<"\n";
 
     for (unsigned int j=0; j<polyscan.totalBamTumorsNum; j++) {
-        sample.outputDistribution << "\nT: ";
+        sample.outputDistribution << "T: ";
         for (unsigned int k=0; k<paramd.s_dispots; k++) {
             sample.outputDistribution << tumorDis[j][k] << " ";
         }
@@ -293,6 +294,51 @@ void HomoSite::DisGenotyping(Sample &sample) {
 
 }
 
+// tumor somatic analyis
+void HomoSite::DisTumorSomatic(Sample &sample) {
+    sample.numberOftotalSites++;
+    bool reportSomatic;
+    reportSomatic = false;
+    tumorCov = 0;
+    for (unsigned int j=0; j<polyscan.totalBamTumorsNum; j++) {
+        for (unsigned int k=0; k<paramd.s_dispots; k++) {
+            tumorCov  += tumorDis[j][k];
+        }
+    }
+
+    if (tumorCov >= param.covCutoff){
+        withSufCov = true;
+        comentropy = Comentropy( tumorDis[0], param.s_dispots);
+    } else {
+        withSufCov = false;
+        comentropy = 0;
+    }
+    if (comentropy >= 0.5) { 
+        reportSomatic = true;
+        sample.numberOfMsiDataPoints ++;
+    }
+    if (withSufCov) sample.numberOfDataPoints++;
+    if (reportSomatic) {
+        sample.outputSomatic << chr << "\t"
+                             << location << "\t"
+                             << fbases << "\t"
+                             << length << "\t"
+                             << bases << "\t"
+                             << ebases;
+        sample.outputSomatic << "\t" << std::fixed << comentropy;
+        sample.outputSomatic << std::endl;
+        SomaticSite onessite;
+        onessite.chr = chr;
+        onessite.location = location;
+        onessite.length = length;
+        onessite.fbases = fbases;
+        onessite.ebases = ebases;
+        onessite.bases = bases;
+
+        sample.totalSomaticSites.push_back( onessite );
+    }
+}
+
 // distance
 double HomoSite::DistanceBetweenTwo( unsigned short * FirstOriginal, unsigned short * SecondOriginal ) {
     double SmallDouble = 0.0000000001;
@@ -361,6 +407,26 @@ double HomoSite::DistanceBetweenTwo( unsigned short * FirstOriginal, unsigned sh
     delete [] SecondNormalized;
 
     return (AreaMax - AreaMin)/AreaMax;
+}
+
+//comentropy
+double HomoSite::Comentropy( unsigned short * tumorDis, unsigned int dispots ) {
+    double sum = 0;
+    double comentropy = 0.0;
+    for (int i = 0; i < dispots; i++){
+        if (tumorDis[i] <3){
+            tumorDis[i] = 0;
+        }
+        sum += tumorDis[i];
+    }
+    if ( sum != 0 ) {
+        for( int j = 0; j < dispots; j++){
+            if( tumorDis[j] != 0 ){
+                comentropy -= (tumorDis[j]/sum)*log(tumorDis[j]/sum);
+            }
+        }
+    }
+    return comentropy;
 }
 
 void HomoSite::ComputeGenotype( unsigned short * NormalReadCount ) {

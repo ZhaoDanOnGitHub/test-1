@@ -129,6 +129,14 @@ void Window::DisGenotypingW(Sample &oneSample) {
     }
 };
 
+void Window:: PouroutTumorSomatic(Sample &oneSample) {
+    HomoSite *p = NULL;
+    for (unsigned short i=0; i<_siteCount; i++){
+        p = _startSite + i;
+        p->DisTumorSomatic(oneSample);
+    }
+};
+
 // change start
 void Window::ChangeStart() {
     if ((_start - MAX_SPAN_SIZE) < 0) {

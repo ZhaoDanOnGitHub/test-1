@@ -69,6 +69,7 @@ public:
     void PouroutDisW(Sample &oneSample);
     void PourTumoroutDisW(Sample &oneSample);
     void DisGenotypingW(Sample &oneSample);
+    void PouroutTumorSomatic(Sample &oneSample);
 
 protected:
     //xxxxxx

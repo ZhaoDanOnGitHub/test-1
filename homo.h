@@ -83,6 +83,7 @@ public:
     bool withGenotype;
     double dif;
     double pValue;
+    double comentropy;
     int genotype[2];
     ////////////////////////
 
@@ -99,9 +100,11 @@ public:
     void PouroutDis(Sample &sample);
     void PourTumoroutDis(Sample &sample);
     void DisGenotyping(Sample &sample);
+    void DisTumorSomatic(Sample &sample);
     //// genotyping ///
     void BoolsInitial();
     double DistanceBetweenTwo(unsigned short * FirstOriginal, unsigned short * SecondOriginal);
+    double Comentropy( unsigned short * tumorDis, unsigned int dispots );
     void ComputeGenotype( unsigned short * NormalReadCount );
 
     protected:
