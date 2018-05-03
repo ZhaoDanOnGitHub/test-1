@@ -44,10 +44,7 @@ int usage(void) {
     << "Usage:   msisensor <command> [options]\n\n"
     << "Key commands:\n\n"
     << " scan            scan homopolymers and miscrosatelites\n"
-    << " msi             msi scoring\n\n"
-    << " msi selection:\n"
-    << " tumor           only have tumor data\n"
-    << " pair            have tumor and normal data\n"
+    << " msi             msi scoring\n"
     << "\n\n";
     return 1; 
 }
@@ -63,13 +60,8 @@ int main(int argc, char **argv) {
             return 0;
         } else if (strcmp(argv[1], "msi") == 0) {
             // distribution && msi scoring analysis 
-	    if (strcmp(argv[2], "tumor") == 0) {
-		MicrosateDisMsiOnly(argc-2,argv+2);
-		return 0;
-	    } else if (strcmp(argv[2], "pair") == 0) {
-                HomoAndMicrosateDisMsi(argc-2, argv+2);
-           	return 0;
-	    }
+            HomoAndMicrosateDisMsi(argc-1,argv+1);
+            return 0;
         } else {
             std::cerr<<"ERROR: unrecognized command "<<argv[1]<<"\n";
             return 2;

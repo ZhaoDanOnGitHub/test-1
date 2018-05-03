@@ -313,7 +313,7 @@ void HomoSite::DisTumorSomatic(Sample &sample) {
         withSufCov = false;
         comentropy = 0;
     }
-    if (comentropy >= 0.5) { 
+    if (comentropy >= param.comentropyThreshold) { 
         reportSomatic = true;
         sample.numberOfMsiDataPoints ++;
     }

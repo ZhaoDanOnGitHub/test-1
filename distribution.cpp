@@ -72,7 +72,8 @@ void DisUsage(void) {
         <<"       -o   <string>   output distribution file\n\n"
 
         <<"       -e   <string>   bed file, optional\n"
-        <<"       -f   <double>   FDR threshold for somatic sites detection, default="<<paramd.fdrThreshold<<"\n"
+        <<"       -f   <double>   When using paired tumor-normal sequence data, FDR threshold for somatic sites detection, default="<<paramd.fdrThreshold<<"\n"
+        <<"       -v   <double>   When using tumor sequence data, comentropy threshold for somatic sites detection, default="<<paramd.comentropyThreshold<<"\n"
         <<"       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="<<paramd.covCutoff<<"\n"
         <<"       -r   <string>   choose one region, format: 1:10000000-20000000\n"    
         <<"       -l   <int>      mininal homopolymer size, default="<<paramd.MininalHomoSize<<"\n"
@@ -105,6 +106,7 @@ int dGetOptions(int rgc, char *rgv[]) {
             case 'e': bedFile  = rgv[++i]; break;
             case 'r': one_region = rgv[++i]; break;
             case 'f': paramd.fdrThreshold  = atof(rgv[++i]); break;
+            case 'v': paramd.comentropyThreshold = atof(rgv[++i]); break;
             case 'c': paramd.covCutoff = atoi(rgv[++i]); break;
             case 'l': paramd.MininalHomoSize = atoi(rgv[++i]); break;
             case 'p': paramd.MininalHomoForDis = atoi(rgv[++i]); break;
@@ -152,8 +154,12 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
     }
 
     // load bam files
-    polyscan.LoadBams( normalBam, tumorBam );
-
+    if( !normalBam.empty() && !tumorBam.empty() ){
+    	polyscan.LoadBams( normalBam, tumorBam );
+    }
+    if( normalBam.empty() && !tumorBam.empty() ){
+	polyscan.LoadBam( tumorBam );
+    }
     // check homo/microsate file
     finH.open(homoFile.c_str());
     if (!finH) {
@@ -170,61 +176,12 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
     std::cout << "\nTotal loading homopolymer and microsatellites:  " << polyscan.totalHomosites << " \n\n";
 
     // change code to one sample
-    polyscan.GetHomoDistribution(sample, disFile);
-
-    std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
-
-    return 0;
-}
-
-
-int MicrosateDisMsiOnly(int argc, char *argv[]) {
-    if (argc == 1) DisUsage();
-    for (int i=0; i<argc; i++) {
-        std::cout <<argv[i]<<' ';
+   if( !normalBam.empty() && !tumorBam.empty() ){
+	polyscan.GetHomoDistribution(sample, disFile);
     }
-    Initial_Time();
-    std::cout <<"Start at:  "<<Curr_Time() << std::endl;
-
-    int noptions = dGetOptions(argc, argv);
-    // process user defined region
-    if (!one_region.empty()) {  
-        if (!polyscan.ParseOneRegion(one_region)) {
-            std::cerr<<"fatal error: Please give correct defined region format (-r) \n";
-            exit(1);
-        }
-        polyscan.ifUserDefinedRegion = true;
-    } else {
-        polyscan.ifUserDefinedRegion = false;
+    if( normalBam.empty() && !tumorBam.empty() ){
+	polyscan.GetHomoTumorDistribution(sample, disFile);
     }
-    // reading bed file if is exist
-    finB.open(bedFile.c_str());
-    if (finB) {
-        std::cout << "loading bed regions ..." << std::endl;
-        polyscan.LoadBeds(finB);
-        polyscan.BedFilterorNot();
-    }
-
-    // load bam files
-    polyscan.LoadBam( tumorBam );
-
-    // check homo/microsate file
-    finH.open(homoFile.c_str());
-    if (!finH) {
-        std::cerr<<"fatal error: failed to open homopolymer and microsatellites file\n";
-        exit(1);
-    }
-    std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
-    polyscan.LoadHomosAndMicrosates(finH);
-    finH.close();
-    //polyscan.TestHomos();
-    polyscan.SplitWindows();
-    //polyscan.TestWindows();
-    std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum << " \n\n";
-    std::cout << "\nTotal loading homopolymer and microsatellites:  " << polyscan.totalHomosites << " \n\n";
-
-    // change code to one sample
-    polyscan.GetHomoTumorDistribution(sample, disFile);
 
     std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
 

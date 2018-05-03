@@ -6,7 +6,7 @@ CFLAGS=-g -O2 -fopenmp
 #FLAGS=-g -fopenmp
 #CFLAGS=-g -fopenmp
 
-SAMTOOLS_ROOT=/home/jry/Downloads/samtools-0.1.19/
+SAMTOOLS_ROOT=/home/zhaodan/workspace/samtools-0.1.19/
 FLAGS+=-I${SAMTOOLS_ROOT}
 LFLAGS=-lm -L${SAMTOOLS_ROOT} -lbam -lz -lpthread
 SOURCE = cmds scan distribution refseq polyscan param utilities homo window bamreader sample chi somatic

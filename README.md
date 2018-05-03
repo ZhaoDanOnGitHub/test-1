@@ -1,6 +1,6 @@
 MSIsensor
 ===========
-MSIsensor is a C++ program for automatically detecting somatic and germline variants at microsatellite regions. It computes length distributions of microsatellites per site in paired tumor and normal sequence data, subsequently using these to statistically compare observed distributions in both samples. Comprehensive testing indicates MSIsensor is an efficient and effective tool for deriving MSI status from standard tumor-normal paired sequence data.
+MSIsensor is a C++ program for automatically detecting somatic and germline variants at microsatellite regions. When using paired tumor-normal sequence data, it computes length distributions of microsatellites per site in paired tumor and normal sequence data, subsequently using these to statistically compare observed distributions in both samples. When using tumor sequence data, it tomputes comentropy per site in tumor sequence data. Sites whose information entropy exceeds the threshold are marked as somatic sites. Finally, the ratio of the number of somatic sites to the total number of microsatellite points is calculated as the MSI score. MSIsensor is an efficient and effective tool for deriving MSI status from standard tumor-normal paired sequence data.
 
 Usage
 -----
@@ -35,7 +35,8 @@ msisensor msi [options]:
        -o   <string>   output distribution file
 
        -e   <string>   bed file, to select a few resions
-       -f   <double>   FDR threshold for somatic sites detection, default=0.05 
+       -f   <double>   When using paired tumor-normal sequence data, FDR threshold for somatic sites detection, default=0.05 
+       -v   <double>   When using tumor sequence data, comentropy threshold for somatic sites detection, default=0.5
        -r   <string>   choose one region, format: 1:10000000-20000000
        -l   <int>      mininal homopolymer size, default=5
        -p   <int>      mininal homopolymer size for distribution analysis, default=10
@@ -95,20 +96,19 @@ Example
 
 2. Msi scorring: 
 
+   If you have paired tumor-normal sequence data, You can use -t and -n to specify the tumor and normal files, respectively:
         msisensor msi -d microsatellites.list -n normal.bam -t tumor.bam -e bed.file -o output.prefix -l 1 -q 1 -b 2
+   
+   If you only have the tumor file, just use the -t option:
+        msisensor msi -d microsatellites.list -t tumor.bam -e bed.file -o output.prefix -l 1 -q 1 -b 2 
 
    Note: normal and tumor bam index files are needed in the same directory as bam files 
 
 Output
 -------
-There will be one microsatellite list output in "scan" step. Msi scorring step will give 4 output files based on given output prefix:
-        
-        output.prefix
-        output.prefix_dis
-        output.prefix_germline
-        output.prefix_somatic
-
-1. microsatellites.list: microsatellite list output ( columns with *_binary means: binary conversion of DNA bases based on A=00, C=01, G=10, and T=11 )
+There will be one microsatellite list output in "scan" step :
+ 
+   microsatellites.list: microsatellite list output ( columns with *_binary means: binary conversion of DNA bases based on A=00, C=01, G=10, and T=11 )
 
         chromosome      location        repeat_unit_length     repeat_unit_binary    repeat_times    left_flank_binary     right_flank_binary      repeat_unit_bases      left_flank_bases       right_flank_bases
         1       10485   4       149     3       150     685     GCCC    AGCCG   GGGTC
@@ -117,18 +117,25 @@ There will be one microsatellite list output in "scan" step. Msi scorring step w
         1       10658   2       9       3       546     409     GC      GAGAG   CGCGC
         1       10681   2       2       3       665     614     AG      GGCGC   GCGCG
 
-2. output.prefix: msi score output
+Msi scorring step will give 4 or 3 output files based on given output prefix acording to whether you use paired data or tumor data:
+When using paired tumor-normal sequence data, output files are :
+        output.prefix
+        output.prefix_dis
+        output.prefix_germline
+        output.prefix_somatic
+
+1. output.prefix: msi score output
 
         Total_Number_of_Sites   Number_of_Somatic_Sites %
         640     75      11.72
 
-3. output.prefix_dis: read count distribution (N: normal; T: tumor)
+2. output.prefix_dis: read count distribution (N: normal; T: tumor)
 
         1 10529896 CTTTC 15[T] GAGAC
         N: 0 0 0 0 0 0 0 1 0 0 8 9 1 7 17 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
         T: 0 0 0 0 0 0 0 0 0 1 19 14 17 9 32 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 
-4. output.prefix_somatic: somatic sites detected ( FDR: false discovery rate ) 
+3. output.prefix_somatic: somatic sites detected ( FDR: false discovery rate ) 
 
         chromosome   location        left_flank     repeat_times    repeat_unit_bases    right_flank      difference      P_value    FDR     rank
         1       16200729        TAAGA   10      T       CTTGT   0.55652 2.8973e-15      1.8542e-12      1
@@ -141,7 +148,7 @@ There will be one microsatellite list output in "scan" step. Msi scorring step w
         1       33087567        TAGAG   16      A       GGAAA   0.53141 1e-14   8e-13   8
         1       41456808        CTAAC   14      T       CTTTT   0.76286 1e-14   7.1111e-13      9
 
-5. output.prefix_germline: germline sites detected
+4. output.prefix_germline: germline sites detected
     
         chromosome   location        left_flank     repeat_times    repeat_unit_bases    right_flank      genotype
         1       1192105 AATAC   11      A       TTAGC   5|5
@@ -150,6 +157,26 @@ There will be one microsatellite list output in "scan" step. Msi scorring step w
         1       1605407 AAAAG   14      A       GAAAA   1|1
         1       2118724 TTTTC   11      T       CTTTT   1|1
 
+When using tumor sequence data, output files are :
+        output.prefix
+        output.prefix_dis
+        output.prefix_somatic
+
+1. output.prefix: msi score output
+
+        Total_Number_of_Sites   Number_of_Somatic_Sites %
+        640     75      11.72
+
+2. output.prefix_dis: read count distribution (T: tumor)
+
+        1 10529896 CTTTC 15[T] GAGAC
+        T: 0 0 0 0 0 0 0 0 0 1 19 14 17 9 32 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+3. output.prefix_somatic: somatic sites detected  
+
+        chromosome   location        left_flank     repeat_times    repeat_unit_bases   comentropy 
+        1	16248728	ACCTC	11	T	AAAGG	0.68491
+	1	16890814	GAGGT	12	A	TTATT	1.09340
 
 Test sample
 -------
