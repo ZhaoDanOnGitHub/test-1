@@ -34,12 +34,14 @@
 #include "polyscan.h"
 #include "bamreader.h"
 #include "param.h"
+#include "sample.h"
 
 extern Param paramd;
 extern bit8_t alphabet[];
 extern bit8_t rev_alphabet[];
 extern char uhomo_code[];
 extern char homo_code[];
+extern Sample sample;
 
 PolyScan::PolyScan() { 
     homosBuffer.reserve(paramd.bufSize);
@@ -288,6 +290,84 @@ void PolyScan::BedFilterorNot() {
     if (beds.size() > 0) ifUserDefinedBed = true;
 }
 
+// losd repeat file
+void PolyScan::LoadRepeats(std::ifstream &fin) {
+    std::string line;
+    std::string useless;
+    std::string chr;
+    std::string tempChr = "";
+    int start;
+    int end;
+    int i = -1;
+    while (getline(fin, line)){
+	std::stringstream linestream(line);
+	linestream >> useless;
+	linestream >> chr;
+	linestream >> start;
+	linestream >> end;
+	if (chr == tempChr) {
+	    RepeatRegion tempRepeatRegion;
+	    tempRepeatRegion.start = start;
+	    tempRepeatRegion.end = end;
+	    repeats[i].repeatregions_list.push_back(tempRepeatRegion);
+	} else {
+	    ++i;
+	    RepeatChr tempRepeatChr;
+	    //change chr1 to 1
+	    if(chr.find("chr")!= std::string::npos) {
+		tempRepeatChr.chr = chr.substr(3);
+	    } else {
+		tempRepeatChr.chr = chr;
+	    }
+	    repeats.push_back(tempRepeatChr);
+	    repeatChrMaptoIndex.insert(std::pair<std::string, bit16_t>(chr.substr(3), i));
+	    RepeatRegion tempRepeatRegion;
+	    tempRepeatRegion.start = start;
+	    tempRepeatRegion.end = end;
+	    repeats[i].repeatregions_list.push_back(tempRepeatRegion);
+	    tempChr = chr;
+	}
+	linestream.clear();
+	linestream.str("");
+    }
+}
+
+//load maf file
+void PolyScan::LoadMaffile(std::ifstream &fin, const std::string &prefix) {
+    std::ifstream finM;
+    std::ofstream output;
+    output.open( prefix.c_str() );
+    std::string line;
+    std::string maffile;
+
+    std::string status; 
+    int MSI = 0;
+    int len = 0;
+    while (getline(fin, line)){
+	std::vector<std::string> p = split(line, " ");
+	std::string maffile = p[0];
+	if (p.size() >= 2)  status = p[1];
+	if(p.size() == 3) len = atoi(p[3].c_str());
+	if (status == "MSS") MSI = 0;
+	if (status == "MSI-L") MSI = 0;
+	if (status == "MSI-H") MSI = 2;
+	finM.open(maffile.c_str());
+	if (!finM) {
+	    std::cerr << "fatal error: failed to open maf file\n";
+	    exit(1);
+	}
+        std::cout << "begin to comput input variables ..." << std::endl;
+	double *arr = pourOUtFeature(finM, len);
+	    
+	//std::cout << arr[0] << std::endl;
+	for (int m = 0; m <= 15; m++){
+	    output << arr[m] << "\t";
+	}
+	if (p.size() >= 2) output << MSI << std::endl;
+	finM.close();
+   }
+}
+
 // test sites loading
 void PolyScan::TestHomos() {
     for (unsigned long i=0; i<totalHomosites; i++) {
@@ -420,3 +500,186 @@ void PolyScan::GetHomoTumorDistribution( Sample &oneSample, const std::string &p
     oneSample.VerboseInfo();
 
 }
+
+std::vector<std::string> PolyScan::split(const std::string &s, const std::string &seperator){
+    std::vector<std::string> result;
+    typedef std::string::size_type string_size;
+    string_size i = 0;
+    while(i != s.size()){
+	int flag = 0;
+	while(i != s.size() && flag == 0){
+	    flag = 1;
+	    for(string_size x = 0; x < seperator.size(); ++x)
+	        if(s[i] == seperator[x]){
+		    ++i;
+		    flag = 0;
+		    break;
+	        } 
+	}
+	flag = 0;
+	string_size j = i;
+	while(j != s.size() && flag == 0){
+	    for(string_size x = 0; x < seperator.size(); ++x)
+		if(s[j] == seperator[x]){
+		    flag = 1;
+		    break;
+		}
+	    if(flag == 0)
+		++j;
+	}
+	if(i != j){
+	    result.push_back(s.substr(i, j-i));
+	    i = j;
+	}
+    }
+    return result;
+}
+
+//Get and output features
+double * PolyScan::pourOUtFeature(std::ifstream &maffile, int actuallen, int defaultlen) {
+    RepeatChr trepeatChr;
+    RepeatRegion trepeatRegion;
+    std::string tchr = "";
+    std::string Chrom;
+    int Start_Position;
+    int End_Position;
+    std::string Variant_Type;
+    std::string Tumor_Seq_Allele2;
+    std::string Tumor_Sample_Barcode;
+    std::string line;
+
+    //features
+    double T_sns = 0.0;
+    double S_sns = 0.0;
+    double T_ins = 0.0;
+    double S_ins = 0.0;
+    double T_del = 0.0;
+    double S_del = 0.0;
+    double T_ind = 0.0;
+    double S_ind = 0.0;
+    double T = 0.0;
+    double S = 0.0;
+    double ratio_sns = 0.0;
+    double ratio_ind = 0.0;
+    double ratio = 0.0;
+    double seq = 0.0;
+    double PI = 0.0;
+    double PD = 0.0;
+
+    int j;
+    int i = 0;
+    double arr[15] = {0};
+
+    while (getline(maffile, line)){
+        i++;
+        if(i >= 5) {
+            std::vector<std::string> p = split(line, "\t");
+            Chrom = p[4];
+            Start_Position =  atoi(p[5].c_str());
+            End_Position = atoi(p[6].c_str());
+            Variant_Type = p[9];
+            Tumor_Seq_Allele2 = p[12];
+            Tumor_Sample_Barcode = p[15];
+            if ( Variant_Type == "SNP" ) T_sns += 1;
+            else if ( Variant_Type == "DEL" ) {
+                T_del += (End_Position - Start_Position + 1) ;
+		 T_ind += (End_Position - Start_Position + 1) ;
+            }
+            else if ( Variant_Type == "INS" ){
+                T_ins += Tumor_Seq_Allele2.size();
+                T_ind += Tumor_Seq_Allele2.size();
+            }
+
+            if(tchr != Chrom) {
+                j = 0;
+                if (repeatChrMaptoIndex.count(Chrom) > 0) {
+                    trepeatChr = repeats[repeatChrMaptoIndex[Chrom]];
+                    tchr = trepeatChr.chr;
+                    trepeatRegion = trepeatChr.repeatregions_list[j++];
+                } else { continue; }
+            }
+            if (End_Position < trepeatRegion.start) continue;
+            if (Start_Position > trepeatRegion.end){
+                for (j; j < trepeatChr.repeatregions_list.size() && Start_Position > trepeatRegion.end; j++){
+                    trepeatRegion = trepeatChr.repeatregions_list[j];
+                }
+                if ( j >= trepeatChr.repeatregions_list.size()) continue;
+            }
+            if ( Variant_Type == "SNP" ){
+                if ( (trepeatRegion.start <= Start_Position) && (Start_Position <= trepeatRegion.end)) {
+                    S_sns += 1;
+                }
+            }
+            else if ( Variant_Type == "DEL" ){
+                if ((Start_Position <= trepeatRegion.start) && (End_Position >= trepeatRegion.start) && (End_Position <= trepeatRegion.end)){
+                    S_del += (End_Position - trepeatRegion.start + 1);
+                    S_ind += (End_Position - trepeatRegion.start + 1);
+                }
+                else if ((Start_Position <= trepeatRegion.start)&&(End_Position >= trepeatRegion.end)) {
+                    S_del += (trepeatRegion.end - trepeatRegion.start + 1);
+                    S_ind += (trepeatRegion.end - trepeatRegion.start + 1);
+                }
+                else if ((Start_Position >= trepeatRegion.start) && (End_Position <= trepeatRegion.end)){
+                    S_del += (End_Position - Start_Position +1);
+                    S_ind += (End_Position - Start_Position +1);
+                }
+                else if ((Start_Position >= trepeatRegion.start)&&(Start_Position <= trepeatRegion.end)&&(End_Position >= trepeatRegion.end)){
+                    S_del += (trepeatRegion.end - Start_Position + 1);
+                    S_ind += (trepeatRegion.end - Start_Position + 1);
+                }
+            }
+            else if ( Variant_Type == "INS" ){
+                if((trepeatRegion.start <= Start_Position) && (Start_Position < trepeatRegion.end)){
+                    S_ins += Tumor_Seq_Allele2.size();
+		    S_ind += Tumor_Seq_Allele2.size();
+                }
+            }
+        }
+    }
+    if( actuallen > 0){
+        T_sns = T_sns/actuallen;
+        T_ind = T_ind/actuallen;
+        S_sns = S_sns/actuallen;
+        S_ind = S_ind/actuallen;
+        S_ins = S_ins/actuallen;
+        S_del = S_del/actuallen;
+        T_ins = T_ins/actuallen;
+        T_del = T_del/actuallen;
+    }else{
+        T_sns = T_sns/defaultlen;
+        T_ind = T_ind/defaultlen;
+        S_sns = S_sns/defaultlen;
+        S_ind = S_ind/defaultlen;
+        S_ins = S_ins/actuallen;
+        S_del = S_del/actuallen;
+        T_ins = T_ins/actuallen;
+        T_del = T_del/actuallen;
+    }
+    T = T_sns + T_ind;
+    S = S_sns + S_ind;
+    if(T_sns != 0.0) ratio_sns = S_sns/T_sns;
+    if(T_ind != 0.0) ratio_ind = S_ind/T_ind;
+    if(T != 0) ratio = S/T;
+    if(T_ins != 0) PI = S_ins/T_ins;
+    if(T_del != 0) PD = S_del/T_del;
+    if(PD != 0) seq = PI/PD;
+
+    arr[0] = T_sns;
+    arr[1] = T_ind;
+    arr[2] = S_sns;
+    arr[3] = S_ind;
+    arr[4] = T_ins;
+    arr[5] = T_del;
+    arr[6] = S_ins;
+    arr[7] = S_del;
+    arr[8] = T;
+    arr[9] = S;
+    arr[10] = ratio_sns;
+    arr[11] = ratio_ind;
+    arr[12] = ratio;
+    arr[13] = PI;
+    arr[14]= PD;
+    arr[15] = seq;
+    return arr;
+}
+

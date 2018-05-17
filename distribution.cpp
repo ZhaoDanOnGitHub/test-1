@@ -56,11 +56,15 @@ std::string normalBam;
 std::string tumorBam;
 std::string bedFile;
 std::string disFile;
+std::string repeatfile;
+std::string filepath;
 
 std::ifstream finH;
 std::ifstream finM;
 std::ifstream finB;
 std::ofstream foutD;
+std::ifstream finR;
+std::ifstream finP;
 
 std::string one_region;
 
@@ -118,6 +122,8 @@ int dGetOptions(int rgc, char *rgv[]) {
             case 'b': paramd.numberThreads = atoi(rgv[++i]); break;
             case 'x': paramd.HomoOnly= atoi(rgv[++i]); break;
             case 'y': paramd.MicrosateOnly = atoi(rgv[++i]); break;
+	    case 'R': repeatfile = rgv[++i]; break;
+	    case 'P': filepath; break;
             break;
             case 'h':DisUsage();
             case '?':DisUsage();    
@@ -162,28 +168,39 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
     }
     // check homo/microsate file
     finH.open(homoFile.c_str());
-    if (!finH) {
-        std::cerr<<"fatal error: failed to open homopolymer and microsatellites file\n";
-        exit(1);
-    }
-    std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
-    polyscan.LoadHomosAndMicrosates(finH);
-    finH.close();
-    //polyscan.TestHomos();
-    polyscan.SplitWindows();
-    //polyscan.TestWindows();
-    std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum << " \n\n";
-    std::cout << "\nTotal loading homopolymer and microsatellites:  " << polyscan.totalHomosites << " \n\n";
+    if (finH) {
+        std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
+        polyscan.LoadHomosAndMicrosates(finH);
+        finH.close();
+        //polyscan.TestHomos();
+        polyscan.SplitWindows();
+        //polyscan.TestWindows();
+        std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum << " \n\n";
+        std::cout << "\nTotal loading homopolymer and microsatellites:  " << polyscan.totalHomosites << " \n\n";
+    
+        // change code to one sample
+       if( !normalBam.empty() && !tumorBam.empty() ){
+	   polyscan.GetHomoDistribution(sample, disFile);
+       }
+       if( normalBam.empty() && !tumorBam.empty() ){
+	   polyscan.GetHomoTumorDistribution(sample, disFile);
+       }
 
-    // change code to one sample
-   if( !normalBam.empty() && !tumorBam.empty() ){
-	polyscan.GetHomoDistribution(sample, disFile);
+       std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
     }
-    if( normalBam.empty() && !tumorBam.empty() ){
-	polyscan.GetHomoTumorDistribution(sample, disFile);
+    finR.open(repeatfile.c_str());
+    if (finR) {
+	std::cout << "loading repeat sites ..." << std::endl;
+	polyscan.LoadRepeats(finH); 
+	finP.open(filepath.c_str());
+	if (!finP) {
+	    std::cerr << "fatal error: failed to open directory file\n";
+	    exit(1);
+	}
+	polyscan.LoadMaffile(finP, disFile);
+	finP.close();
     }
-
-    std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
-
+    finR.close();
+	
     return 0;
 }

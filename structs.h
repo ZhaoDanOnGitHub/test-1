@@ -117,5 +117,27 @@ struct BamTumors {
 
 };
 
+//repeat file
+struct RepeatRegion {
+    RepeatRegion()
+	: start(0)
+	, end(0)
+	{
+            //xxx
+	}
+	int start;
+	int end;
+};
+
+//repeat regions located on one chromosome
+struct RepeatChr {
+    RepeatChr()
+	: chr("")
+    {
+	//xxx
+    }
+	std::string chr;
+	std::vector< RepeatRegion > repeatregions_list;
+};
 #endif //_STRUCTS_H_
 
