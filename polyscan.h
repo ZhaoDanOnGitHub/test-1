@@ -86,7 +86,7 @@ class PolyScan
 	std::vector< RepeatChr > repeats;
 	void LoadRepeats(std::ifstream &fin);
 	void LoadMaffile(std::ifstream &fin, const std::string &prefix);
-	double * pourOUtFeature(std::ifstream &maffile, int actuallen = 0, int defaultlen = 38);
+	void pourOUtFeature(std::ifstream &maffile, double arr[], int actuallen = 0, int defaultlen = 38);
 
         // windows
         std::vector< Window > totalWindows;

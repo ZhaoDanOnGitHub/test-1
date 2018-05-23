@@ -29,7 +29,6 @@
 
 int HomoAndMicrosateScan(int argc, char *argv[]);   
 int HomoAndMicrosateDisMsi(int argc, char *argv[]);
-int MicrosateDisMsiOnly(int argc, char *argv[]);
 
 #endif //_CMDS_H_
 

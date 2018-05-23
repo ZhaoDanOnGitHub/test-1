@@ -339,27 +339,28 @@ void PolyScan::LoadMaffile(std::ifstream &fin, const std::string &prefix) {
     output.open( prefix.c_str() );
     std::string line;
     std::string maffile;
-
     std::string status; 
     int MSI = 0;
     int len = 0;
     while (getline(fin, line)){
 	std::vector<std::string> p = split(line, " ");
-	std::string maffile = p[0];
-	if (p.size() >= 2)  status = p[1];
+	maffile = p[0];
+    std::cout << maffile << std::endl;
+	if (p.size() >= 2)  {
+        status = p[1];
+	    if (status == "MSS") MSI = 0;
+	    if (status == "MSI-L") MSI = 0;
+	    if (status == "MSI-H") MSI = 2;
+    }
 	if(p.size() == 3) len = atoi(p[3].c_str());
-	if (status == "MSS") MSI = 0;
-	if (status == "MSI-L") MSI = 0;
-	if (status == "MSI-H") MSI = 2;
 	finM.open(maffile.c_str());
 	if (!finM) {
 	    std::cerr << "fatal error: failed to open maf file\n";
 	    exit(1);
 	}
         std::cout << "begin to comput input variables ..." << std::endl;
-	double *arr = pourOUtFeature(finM, len);
-	    
-	//std::cout << arr[0] << std::endl;
+    double arr[15] = {0};
+	pourOUtFeature(finM, arr, len);
 	for (int m = 0; m <= 15; m++){
 	    output << arr[m] << "\t";
 	}
@@ -536,7 +537,7 @@ std::vector<std::string> PolyScan::split(const std::string &s, const std::string
 }
 
 //Get and output features
-double * PolyScan::pourOUtFeature(std::ifstream &maffile, int actuallen, int defaultlen) {
+void PolyScan::pourOUtFeature(std::ifstream &maffile, double arr[],int actuallen, int defaultlen) {
     RepeatChr trepeatChr;
     RepeatRegion trepeatRegion;
     std::string tchr = "";
@@ -568,8 +569,6 @@ double * PolyScan::pourOUtFeature(std::ifstream &maffile, int actuallen, int def
 
     int j;
     int i = 0;
-    double arr[15] = {0};
-
     while (getline(maffile, line)){
         i++;
         if(i >= 5) {
@@ -650,11 +649,12 @@ double * PolyScan::pourOUtFeature(std::ifstream &maffile, int actuallen, int def
         T_ind = T_ind/defaultlen;
         S_sns = S_sns/defaultlen;
         S_ind = S_ind/defaultlen;
-        S_ins = S_ins/actuallen;
-        S_del = S_del/actuallen;
-        T_ins = T_ins/actuallen;
-        T_del = T_del/actuallen;
+        S_ins = S_ins/defaultlen;
+        S_del = S_del/defaultlen;
+        T_ins = T_ins/defaultlen;
+        T_del = T_del/defaultlen;
     }
+    std::cout << T_ins << std::endl;
     T = T_sns + T_ind;
     S = S_sns + S_ind;
     if(T_sns != 0.0) ratio_sns = S_sns/T_sns;
@@ -680,6 +680,5 @@ double * PolyScan::pourOUtFeature(std::ifstream &maffile, int actuallen, int def
     arr[13] = PI;
     arr[14]= PD;
     arr[15] = seq;
-    return arr;
 }
 
