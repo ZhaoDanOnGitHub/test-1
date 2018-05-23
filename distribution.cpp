@@ -92,6 +92,8 @@ void DisUsage(void) {
         <<"       -b   <int>      threads number for parallel computing, default="<<paramd.numberThreads<<"\n"
         <<"       -x   <int>      output homopolymer only, 0: no; 1: yes, default="<<paramd.HomoOnly<<"\n"
         <<"       -y   <int>      output microsatellite only, 0: no; 1: yes, default="<<paramd.MicrosateOnly<<"\n"
+        <<"       -R   <string>   repeat file\n"
+        <<"       -P   <string>   the path of maf files\n"
         <<"       \n"
         <<"       -h   help\n\n"
         << std::endl;
@@ -122,8 +124,8 @@ int dGetOptions(int rgc, char *rgv[]) {
             case 'b': paramd.numberThreads = atoi(rgv[++i]); break;
             case 'x': paramd.HomoOnly= atoi(rgv[++i]); break;
             case 'y': paramd.MicrosateOnly = atoi(rgv[++i]); break;
-	    case 'R': repeatfile = rgv[++i]; break;
-	    case 'P': filepath; break;
+	        case 'R': repeatfile = rgv[++i]; break;
+	        case 'P': filepath = rgv[++i]; break;
             break;
             case 'h':DisUsage();
             case '?':DisUsage();    
@@ -191,7 +193,7 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
     finR.open(repeatfile.c_str());
     if (finR) {
 	std::cout << "loading repeat sites ..." << std::endl;
-	polyscan.LoadRepeats(finH); 
+	polyscan.LoadRepeats(finR); 
 	finP.open(filepath.c_str());
 	if (!finP) {
 	    std::cerr << "fatal error: failed to open directory file\n";

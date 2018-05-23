@@ -155,4 +155,3 @@ void Sample::VerboseInfo() {
               << "Number of MSI sites: " 
               << numberOfMsiDataPoints << "\n"; 
 }
-

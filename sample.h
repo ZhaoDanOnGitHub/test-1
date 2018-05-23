@@ -36,6 +36,7 @@
 #include <algorithm>
 
 #include "somatic.h"
+#include "structs.h"
 
 // sample
 class Sample {
@@ -50,6 +51,7 @@ public:
     std::ofstream outputSomatic;
     std::ofstream outputGermline;
     std::ofstream outputDistribution;
+    std::ofstream outputFeature;
 
     unsigned numberOfSites;
 
