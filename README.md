@@ -1,5 +1,4 @@
-MSIsensor
-===========
+MSIsensor1.1
 MSIsensor is a C++ program for automatically detecting somatic and germline variants at microsatellite regions. When using paired tumor-normal sequence data, it computes length distributions of microsatellites per site in paired tumor and normal sequence data, subsequently using these to statistically compare observed distributions in both samples. When using tumor sequence data, it tomputes comentropy per site in tumor sequence data. Sites whose information entropy exceeds the threshold are marked as somatic sites. Finally, the ratio of the number of somatic sites to the total number of microsatellite points is calculated as the MSI score. MSIsensor is an efficient and effective tool for deriving MSI status from standard tumor-normal paired sequence data.
 
 Usage
