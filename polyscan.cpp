@@ -293,18 +293,22 @@ void PolyScan::BedFilterorNot() {
 // losd repeat file
 void PolyScan::LoadRepeats(std::ifstream &fin) {
     std::string line;
-    std::string useless;
     std::string chr;
     std::string tempChr = "";
     int start;
     int end;
+    int repeat_len;
+    int repeat_bin;
+    int repeat_times;
     int i = -1;
     while (getline(fin, line)){
 	std::stringstream linestream(line);
-	linestream >> useless;
 	linestream >> chr;
 	linestream >> start;
-	linestream >> end;
+	linestream >> repeat_len;
+	linestream >> repeat_bin;
+	linestream >> repeat_times;
+	end = start + repeat_len * repeat_times -1;
 	if (chr == tempChr) {
 	    RepeatRegion tempRepeatRegion;
 	    tempRepeatRegion.start = start;
@@ -654,7 +658,6 @@ void PolyScan::pourOUtFeature(std::ifstream &maffile, double arr[],int actuallen
         T_ins = T_ins/defaultlen;
         T_del = T_del/defaultlen;
     }
-    std::cout << T_ins << std::endl;
     T = T_sns + T_ind;
     S = S_sns + S_ind;
     if(T_sns != 0.0) ratio_sns = S_sns/T_sns;

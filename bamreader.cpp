@@ -200,6 +200,12 @@ bool ReadInBamReads( const char *bam_path,
     data.b2_flags = &b2_flags;
     data.Tag = Tag;
     // std:: cout << " before bam_fetch " << std::endl;
+    if(tid == -1){
+        std::cout << "Warning:" << std::endl;
+        std::cout << "Mismatch!!! In the 'msisensor scan' step, your reference genome file should match the one used for bam file generation."<<std::endl;
+        std::cout << "Program aborted!!!" << std::endl;
+        exit(1);
+    }
     bam_fetch (fp, idx, tid, start, end, &data, fetch_func_ALL);
     // std:: cout << " after bam_fetch " << std::endl;
     khint_t key;
