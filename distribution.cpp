@@ -56,14 +56,12 @@ std::string normalBam;
 std::string tumorBam;
 std::string bedFile;
 std::string disFile;
-std::string repeatfile;
 std::string filepath;
 
 std::ifstream finH;
 std::ifstream finM;
 std::ifstream finB;
 std::ofstream foutD;
-std::ifstream finR;
 std::ifstream finP;
 
 std::string one_region;
@@ -92,7 +90,6 @@ void DisUsage(void) {
         <<"       -b   <int>      threads number for parallel computing, default="<<paramd.numberThreads<<"\n"
         <<"       -x   <int>      output homopolymer only, 0: no; 1: yes, default="<<paramd.HomoOnly<<"\n"
         <<"       -y   <int>      output microsatellite only, 0: no; 1: yes, default="<<paramd.MicrosateOnly<<"\n"
-        <<"       -R   <string>   repeat file\n"
         <<"       -P   <string>   the path of maf files\n"
         <<"       \n"
         <<"       -h   help\n\n"
@@ -124,7 +121,6 @@ int dGetOptions(int rgc, char *rgv[]) {
             case 'b': paramd.numberThreads = atoi(rgv[++i]); break;
             case 'x': paramd.HomoOnly= atoi(rgv[++i]); break;
             case 'y': paramd.MicrosateOnly = atoi(rgv[++i]); break;
-	        case 'R': repeatfile = rgv[++i]; break;
 	        case 'P': filepath = rgv[++i]; break;
             break;
             case 'h':DisUsage();
@@ -170,10 +166,13 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
     }
     // check homo/microsate file
     finH.open(homoFile.c_str());
-    if (finH) {
+    if (!finH) {
+        std::cerr<<"fatal error: failed to open homopolymer and microsatellites file\n";
+        exit(1);
+    }
+    if( !tumorBam.empty() ) {
         std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
         polyscan.LoadHomosAndMicrosates(finH);
-        finH.close();
         //polyscan.TestHomos();
         polyscan.SplitWindows();
         //polyscan.TestWindows();
@@ -188,21 +187,19 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
 	   polyscan.GetHomoTumorDistribution(sample, disFile);
        }
 
-       std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
+    }else{
+        polyscan.LoadRepeats(finH); 
+	    finP.open(filepath.c_str());
+	    if (!finP) {
+	        std::cerr << "fatal error: failed to open directory file\n";
+	        exit(1);
+	    }
+	    polyscan.LoadMaffile(finP, disFile);
+	    finP.close();
     }
-    finR.open(repeatfile.c_str());
-    if (finR) {
-	std::cout << "loading repeat sites ..." << std::endl;
-	polyscan.LoadRepeats(finR); 
-	finP.open(filepath.c_str());
-	if (!finP) {
-	    std::cerr << "fatal error: failed to open directory file\n";
-	    exit(1);
-	}
-	polyscan.LoadMaffile(finP, disFile);
-	finP.close();
-    }
-    finR.close();
+
+    finH.close();
+    std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
 	
     return 0;
 }

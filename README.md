@@ -1,5 +1,6 @@
 MSIsensor1.1
-MSIsensor is a C++ program for automatically detecting somatic and germline variants at microsatellite regions. When using paired tumor-normal sequence data, it computes length distributions of microsatellites per site in paired tumor and normal sequence data, subsequently using these to statistically compare observed distributions in both samples. When using tumor sequence data, it tomputes comentropy per site in tumor sequence data. Sites whose information entropy exceeds the threshold are marked as somatic sites. Finally, the ratio of the number of somatic sites to the total number of microsatellite points is calculated as the MSI score. MSIsensor is an efficient and effective tool for deriving MSI status from standard tumor-normal paired sequence data.
+======================
+MSIsensor is a program written in C++ and python to detect replication slippage variants at microsatellite regions, and differentiate them as somatic or germline. When given paired tumor and normal sequence data, it builds a distribution for expected (normal) and observed (tumor) lengths of repeated sequence per microsatellite, and compares them using Pearson's Chi-Squared Test. MSIsensor is a C++ program for automatically detecting somatic and germline variants at microsatellite regions. When given tumor only, it computes comentropy for the distribution of each site. Sites whose information entropy exceeds the threshold are marked as somatic sites. Finally, the ratio of the number of somatic sites to the total number of microsatellite points is calculated as the MSI score. when given maf file,it will build data frame for train or test. Comprehensive testing indicates MSIsensor is an efficient and effective tool for deriving MSI status from standard tumor-normal paired sequence data, tumor only and mutation data. 
 
 Usage
 -----
@@ -30,12 +31,13 @@ msisensor msi [options]:
 
        -d   <string>   homopolymer and microsatellites file
        -n   <string>   normal bam file ( bam index file is needed )
-       -t   <string>   tumor  bam file ( bam index file is needed )
+       -t   <string>   tumor  bam file ( bam index file is needed. If you have tumor-normal paired sequence data, you need to specify them with -n and -t. If you have tumor only, you just need to specify tumor file with -t. )
        -o   <string>   output distribution file
 
        -e   <string>   bed file, to select a few resions
        -f   <double>   When using paired tumor-normal sequence data, FDR threshold for somatic sites detection, default=0.05 
        -v   <double>   When using tumor sequence data, comentropy threshold for somatic sites detection, default=0.5
+       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default=20
        -r   <string>   choose one region, format: 1:10000000-20000000
        -l   <int>      mininal homopolymer size, default=5
        -p   <int>      mininal homopolymer size for distribution analysis, default=10
@@ -47,6 +49,7 @@ msisensor msi [options]:
        -b   <int>      threads number for parallel computing, default=1
        -x   <int>      output homopolymer only, 0: no; 1: yes, default=0
        -y   <int>      output microsatellite only, 0: no; 1: yes, default=0
+       -P   <string>   the path of maf files(If you want to use mutation data, you just need to specify homopolymer and microsatellites file and maf files path with -d and -P respectively)
        
        -h   help
 
@@ -86,6 +89,7 @@ We have also provided pre-build binary distributions for Linux x86_64 and Mac OS
     msisensor_Linux_x86_64: for Linux x86_64
     msisensor_Mac_OS_X    : for Mac OS X
 
+If you want to use mutation data to train or test, you must install python and sklearn model
 
 Example
 -------
@@ -95,11 +99,28 @@ Example
 
 2. Msi scorring: 
 
-   If you have paired tumor-normal sequence data, You can use -t and -n to specify the tumor and normal files, respectively:
+   If you have paired tumor-normal sequence data, you can use -t and -n to specify the tumor and normal files, respectively:
         msisensor msi -d microsatellites.list -n normal.bam -t tumor.bam -e bed.file -o output.prefix -l 1 -q 1 -b 2
    
    If you only have the tumor file, just use the -t option:
         msisensor msi -d microsatellites.list -t tumor.bam -e bed.file -o output.prefix -l 1 -q 1 -b 2 
+
+   If you have maf file, you can use -P option:
+        msisensor msi -d microsatellites.list -P /Path/to/maf -o data_frame
+   ( /Path/to/maf: a file of the list of maf specimens, with each line being the absolute path to one sample. If you want to train model, being the absolute path should have microsatellite status. 
+    Microsatellite status must be MSS/MSI-L/MSS-H. You can specify the gene length(/Mb) after microsatellite status, default 38.
+    If you want to test, each line just contain path and gene length. Path, microsatellite status and gene length are separated by sapce.
+    A File of the list of maf specimens as follow:
+    /home/sczhaod/TCGA/mutation_data/gdac.broadinstitute.org_COAD.Mutation_Packager_Oncotated_Calls.Level_3.2016012800.0.0/TCGA-A6-2672-01.hg19.oncotator.hugo_entrez_remapped.maf.txt MSI-H
+    /home/sczhaod/TCGA/mutation_data/gdac.broadinstitute.org_COAD.Mutation_Packager_Oncotated_Calls.Level_3.2016012800.0.0/TCGA-A6-2674-01.hg19.oncotator.hugo_entrez_remapped.maf.txt MSS
+    /home/sczhaod/TCGA/mutation_data/gdac.broadinstitute.org_COAD.Mutation_Packager_Oncotated_Calls.Level_3.2016012800.0.0/TCGA-A6-2676-01.hg19.oncotator.hugo_entrez_remapped.maf.txt MSI-H
+    /home/sczhaod/TCGA/mutation_data/gdac.broadinstitute.org_COAD.Mutation_Packager_Oncotated_Calls.Level_3.2016012800.0.0/TCGA-A6-2677-01.hg19.oncotator.hugo_entrez_remapped.maf.txt MSS
+    /home/sczhaod/TCGA/mutation_data/gdac.broadinstitute.org_COAD.Mutation_Packager_Oncotated_Calls.Level_3.2016012800.0.0/TCGA-A6-2678-01.hg19.oncotator.hugo_entrez_remapped.maf.txt MSS
+    
+    You can refer to the format of the maf file in test.
+
+    After getting data_frame, you can use "python train.py" to train or "python test.py" to test )
+
 
    Note: normal and tumor bam index files are needed in the same directory as bam files 
 
@@ -176,6 +197,19 @@ When using tumor sequence data, output files are :
         chromosome   location        left_flank     repeat_times    repeat_unit_bases   comentropy 
         1	16248728	ACCTC	11	T	AAAGG	0.68491
 	1	16890814	GAGGT	12	A	TTATT	1.09340
+
+when using mutation data, output files are:
+        data_frame
+for examplei(train data):
+
+20.6053	2.44737	0.263158	0.368421	1.31579	1.13158	0.315789	0.0526316	23.0526	0.631579	0.0127714	0.150538	0.0273973	0.24	0.0465116	5.16	1
+2.55263	0.131579	0.0263158	0.0263158	0.105263	0.0263158	0.0263158	0	2.68421	0.0526316	0.0103093	0.2	0.0196078	0.25	0	0	0
+3.15789	0.105263	0.105263	0.0263158	0.0526316	0.0526316	0.0263158	0	3.26316	0.131579	0.0333333	0.25	0.0403226	0.5	0	0	0
+23.8684	1.07895	0.368421	0.105263	0.368421	0.710526	0.105263	0	24.9474	0.473684	0.0154355	0.097561	0.0189873	0.285714	0	0	1
+
+If you don't have maf file and have mutation data, you can provide mutation data as follow to train or test:
+T_sns T_ind S_sns S_ind T_ins T_del S_ins S_del T S ration_sns tation_ind ratio PI PD seq microsatellite_status
+(If for testing, you don't need the last column "microsatellite_status")
 
 Test sample
 -------

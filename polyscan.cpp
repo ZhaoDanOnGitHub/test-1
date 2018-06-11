@@ -350,13 +350,24 @@ void PolyScan::LoadMaffile(std::ifstream &fin, const std::string &prefix) {
 	std::vector<std::string> p = split(line, " ");
 	maffile = p[0];
     std::cout << maffile << std::endl;
-	if (p.size() >= 2)  {
+	if (p.size() == 2)  {
+        if(isAllDigit(p[1])){
+            len = atoi(p[1].c_str());
+        }else{
+            status = p[1];
+	        if (status == "MSS") MSI = 0;
+	        if (status == "MSI-L") MSI = 0;
+	        if (status == "MSI-H") MSI = 1;
+        }
+    }
+	if(p.size() == 3) {
         status = p[1];
 	    if (status == "MSS") MSI = 0;
 	    if (status == "MSI-L") MSI = 0;
-	    if (status == "MSI-H") MSI = 2;
+	    if (status == "MSI-H") MSI = 1;
+        len = atoi(p[2].c_str());
+
     }
-	if(p.size() == 3) len = atoi(p[3].c_str());
 	finM.open(maffile.c_str());
 	if (!finM) {
 	    std::cerr << "fatal error: failed to open maf file\n";
@@ -425,6 +436,20 @@ void PolyScan::SplitWindows() {
     totalWindows.push_back(oneW);
     totalWindowsNum++;
 }
+
+//test whether a string consist of numbers or not.
+bool PolyScan::isAllDigit(const std::string & str) {
+    for (int i=0; i < str.size(); i++){
+        int tmp = (int)str[i];
+        if (tmp >= 48 && tmp <= 57){
+            continue;
+        }else{
+            return false;
+        }
+    }
+    return true;
+}
+    
 
 // test windows
 void PolyScan::TestWindows() {

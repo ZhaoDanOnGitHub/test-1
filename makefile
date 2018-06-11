@@ -6,9 +6,12 @@ CFLAGS=-g -O2 -fopenmp
 #FLAGS=-g -fopenmp
 #CFLAGS=-g -fopenmp
 
-SAMTOOLS_ROOT=/home/sczhaod/workspace/samtools-0.1.19/
+SAMTOOLS_ROOT=/home/jry/zhaodan_practice/samtools-0.1.19/
+MLPACK_LIB=/home/jry/workspace/mlpack-3.0.0/build/lib/
+MLPACK_INCLUDE=/home/jry/workspace/mlpack-3.0.0/build/include/
 FLAGS+=-I${SAMTOOLS_ROOT}
-LFLAGS=-lm -L${SAMTOOLS_ROOT} -lbam -lz -lpthread
+FLAGS+=-I${MLPACK_INCLUDE}
+LFLAGS=-lm -L${SAMTOOLS_ROOT} -L${MLPACK_LIB} -lbam -lz -lpthread -lmlpack -lboost_program_options -larmadillo -g
 SOURCE = cmds scan distribution refseq polyscan param utilities homo window bamreader sample chi somatic
 OBJS= $(patsubst %,%.o,$(SOURCE))
 

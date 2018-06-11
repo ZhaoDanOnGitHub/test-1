@@ -65,12 +65,12 @@ class PolyScan
 
         // load bam list file 
         std::vector< BamPairs > totalBamPairs;
-	std::vector< BamTumors > totalBamTumors;
+	    std::vector< BamTumors > totalBamTumors;
         //void LoadBams(std::ifstream &fin);
         void LoadBams(const std::string &nBam, const std::string &tBam);
-	void LoadBam(const std::string &tBam);
+	    void LoadBam(const std::string &tBam);
         unsigned int totalBamPairsNum;
-	unsigned int totalBamTumorsNum;
+	    unsigned int totalBamTumorsNum;
 
         // load homos and microsatellites
         unsigned long totalHomosites; 
@@ -81,12 +81,12 @@ class PolyScan
 
         std::vector< HomoSite > homosBuffer;
 
-	// repeat regions
-	std::map <std::string, bit16_t> repeatChrMaptoIndex;
-	std::vector< RepeatChr > repeats;
-	void LoadRepeats(std::ifstream &fin);
-	void LoadMaffile(std::ifstream &fin, const std::string &prefix);
-	void pourOUtFeature(std::ifstream &maffile, double arr[], int actuallen = 0, int defaultlen = 38);
+	    // repeat regions
+	    std::map <std::string, bit16_t> repeatChrMaptoIndex;
+	    std::vector< RepeatChr > repeats;
+	    void LoadRepeats(std::ifstream &fin);
+	    void LoadMaffile(std::ifstream &fin, const std::string &prefix);
+	    void pourOUtFeature(std::ifstream &maffile, double arr[], int actuallen = 0, int defaultlen = 38);
 
         // windows
         std::vector< Window > totalWindows;
@@ -103,6 +103,7 @@ class PolyScan
 	
 	//split
        	std::vector<std::string> split(const std::string &str, const std::string &seperator); 
+        bool isAllDigit(const std::string &str);
 
 protected:
 
