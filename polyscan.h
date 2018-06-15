@@ -76,7 +76,7 @@ class PolyScan
         unsigned long totalHomosites; 
         //std::vector< HomoSite * > totalSites;
         std::vector< HomoSite  > totalSites;
-        void LoadHomosAndMicrosates(std::ifstream &fin);
+        bool LoadHomosAndMicrosates(std::ifstream &fin);
         void TestHomos();
 
         std::vector< HomoSite > homosBuffer;

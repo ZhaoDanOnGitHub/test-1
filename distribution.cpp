@@ -172,7 +172,11 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
     }
     if( !tumorBam.empty() ) {
         std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
-        polyscan.LoadHomosAndMicrosates(finH);
+        if (!polyscan.LoadHomosAndMicrosates(finH)) {
+            std::cout << "There is not any microsatellite sites..."
+                << std::endl;
+            exit(1);
+        }
         //polyscan.TestHomos();
         polyscan.SplitWindows();
         //polyscan.TestWindows();

@@ -177,7 +177,7 @@ void PolyScan::LoadBam(const std::string &bam) {
     totalBamTumorsNum++;
 }
 // read and load sites
-void PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
+bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
     std::string chr;
     std::string bases;
     std::string fbases;
@@ -253,6 +253,7 @@ void PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
                     tbedRegion = tbedChr.regions_list[j];
                     if (loc < tbedRegion.end) { break; }
                 }
+                if (loc < tbedRegion.start) continue;
                 if (j >= tbedChr.regions_list.size()) continue;
             }
             if ((loc + siteLength * siteRepeats) > tbedRegion.end) continue;
@@ -282,6 +283,9 @@ void PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
         linestream.str("");
 
     } // end while
+    if (totalHomosites != 0)
+        return true;
+    return false;
 
 }
 
