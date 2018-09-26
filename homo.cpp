@@ -306,14 +306,14 @@ void HomoSite::DisTumorSomatic(Sample &sample) {
         }
     }
 
-    if (tumorCov >= param.covCutoff){
+    if (tumorCov >= paramd.covCutoff){
         withSufCov = true;
-        comentropy = Comentropy( tumorDis[0], param.s_dispots);
+        comentropy = Comentropy( tumorDis[0], paramd.s_dispots);
     } else {
         withSufCov = false;
         comentropy = 0;
     }
-    if (comentropy >= param.comentropyThreshold) { 
+    if (comentropy >= paramd.comentropyThreshold) { 
         reportSomatic = true;
         sample.numberOfMsiDataPoints ++;
     }
@@ -345,7 +345,7 @@ double HomoSite::DistanceBetweenTwo( unsigned short * FirstOriginal, unsigned sh
     // declare 
     double *Min, *Max, *FirstNormalized, *SecondNormalized, AreaMin, AreaMax;
     unsigned int dispots, sumFirst, sumSecond;
-    dispots = param.s_dispots;
+    dispots = paramd.s_dispots;
     FirstNormalized   = new double [dispots + 2];
     SecondNormalized  = new double [dispots + 2];
     sumFirst = sumSecond = 0;
@@ -413,10 +413,14 @@ double HomoSite::DistanceBetweenTwo( unsigned short * FirstOriginal, unsigned sh
 double HomoSite::Comentropy( unsigned short * tumorDis, unsigned int dispots ) {
     double sum = 0;
     double comentropy = 0.0;
+    double max = tumorDis[0];
     for (int i = 0; i < dispots; i++){
-        if (tumorDis[i] <3){
-            tumorDis[i] = 0;
+        if (tumorDis[i] > max){
+            max = tumorDis[i];
         }
+    }
+    for (int i = 0; i < dispots; i++){
+        if((tumorDis[i]/max) < 0.05) tumorDis[i] = 0;
         sum += tumorDis[i];
     }
     if ( sum != 0 ) {
@@ -431,11 +435,11 @@ double HomoSite::Comentropy( unsigned short * tumorDis, unsigned int dispots ) {
 
 void HomoSite::ComputeGenotype( unsigned short * NormalReadCount ) {
     unsigned int Offset, CoverageCutoff, first, second, Sum;
-    Offset = 1; CoverageCutoff = param.covCutoff;
+    Offset = 1; CoverageCutoff = paramd.covCutoff;
     first = second = Sum = 0;
 
     // find the largest number 
-    for (unsigned int pos_index = 0; pos_index < param.s_dispots; pos_index++) { 
+    for (unsigned int pos_index = 0; pos_index < paramd.s_dispots; pos_index++) { 
         // NormalReadCount
         Sum += NormalReadCount[pos_index];
         if (NormalReadCount[pos_index] > NormalReadCount[first]) first = pos_index;
@@ -448,7 +452,7 @@ void HomoSite::ComputeGenotype( unsigned short * NormalReadCount ) {
     }
 
     if (first == 0) second = 1;
-    for (unsigned int pos_index = 0; pos_index < param.s_dispots; pos_index++) {
+    for (unsigned int pos_index = 0; pos_index < paramd.s_dispots; pos_index++) {
         if (pos_index == first) continue; 
         if (NormalReadCount[pos_index] > NormalReadCount[second]) second = pos_index;
     }
